@@ -146,12 +146,5 @@ npcs
 
 SaveObject(object.combined, "object_integrated")
 
-##Part_2
 
-#object.combined <- FindNeighbors(object.combined, reduction = "pca", dims = 1:50)
-
-#clustree <- FindClusters(object.combined, resolution = c(0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.2,1.4))
-#p <- clustree(clustree)
-#SaveFigure(p, "Clustree", width = 8, height = 10)
-#rm(clustree)
 
