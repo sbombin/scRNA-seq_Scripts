@@ -93,7 +93,7 @@ write.csv(ncc,'Ncell_perCluster-Sample.csv', row.names = FALSE)
 
 ## Run DE for each comparison in each cluster
 # select clusters from metadata
-cluster <- object$cluster
+cluster <- unique(object$cluster) %>% sort()
 de.list <- list()
 for (x in seq_along(comparisons)) {
   
