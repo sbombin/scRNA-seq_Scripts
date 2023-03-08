@@ -1,18 +1,12 @@
+source('HelperFUNs.R')
 library(UCell)
 
-data_path <- "/Users/sbombin/Desktop/analysis_mm39.comb/Seurat_Analysis/IEC/"
+fig_path <- "UCell_out"
 
-object <- ReadObject("seuratobj.IEC.scale_all")
+object <- readRDS("seuratobj.RDS")
 DefaultAssay(object) <- "RNA"
-object <- RenameIdents(object, `0` = "EPL1", `1` = "MEP1", `2` = "MEP2",`3` = "TA", `4` = "MED", `5` = "IEP", `6` = "MEP3", `7` = "EPE1", `8` = "ISC",
-                       `9` = "EPE2", `10` = "EPL2", `11` = "Goblet", `12` = "Tuft", `13` = "EEC", `14` = "MEP4", `15` = "Paneth")
 
-data_path <- "/Users/sbombin/Desktop/analysis_mm39.comb/Seurat_Analysis/IEC/UCell/"
-fig_path <- "/Users/sbombin/Desktop/analysis_mm39.comb/Seurat_Analysis/IEC/UCell/"
-setwd("/Users/sbombin/Desktop/analysis_mm39.comb/Seurat_Analysis/IEC/UCell/")
-
-#read.table("~/Desktop/analysis_mm39.comb/Seurat_Analysis/IEC/UCell/CGAS_TARGET_GENES.v2022.1.Mm.grp", header=TRUE, quote="\"")
-
+## find files with pathway genes and load as list
 file_list <- list.files( pattern = "*.grp")
 file_list 
 df_list <- lapply(file_list,
@@ -20,29 +14,28 @@ df_list <- lapply(file_list,
                     read.table(files, header=TRUE, quote="\"")
                   })
 
-
+## extract gene set (pathway) names
 names <- lapply(df_list, function(x) names(x))
 names <- unlist(names)
-
+## extract genes for each pathway and add to list
 path <- lapply(df_list, unlist, use.names=FALSE)
 names(path) <- names
 
+## change gene names to upper case if needed
 #path <- lapply(path, toupper)
-
+## extract all gene names present in seurat object
 all.genes <- rownames(object)
 
-#a<- lapply(path, function(x) x[x %in% all.genes])
-#b <- lapply(path, function(x) x[!x %in% all.genes])
-#c <- as.data.frame(all.genes)
-
+## remove pathway genes that are NOT in seurat dataset
 path <- lapply(path, function(x) x[x %in% all.genes])
+## or remove pathway genes that are present in seurat dataset
+#path <- lapply(path, function(x) x[!x %in% all.genes])
 
+## run UCell scoring
 ucell <- AddModuleScore_UCell(object, features = path, maxRank = 2000, slot = "data")
 signature.names <- paste0(names(path), "_UCell")
 
-#p <- FeaturePlot(ucell, reduction = "umap", features = signature.names, ncol = 5, order = T)
-#p
-
+## create and save  Feature plots and Violin plots
 lapply(seq_along(signature.names), function(i) {
   p1 <- VlnPlot(ucell, features = signature.names[i]) + theme(legend.position = 'none')
   SaveFigure(p1, paste0('VlnPlot_',signature.names[i]), width = 8, height = 8)})
