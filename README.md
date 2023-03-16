@@ -1,3 +1,3 @@
 # scRNA-seq_Scripts
 
-my scripts to process and analyze scRNA-seq data
+scripts to process and analyze scRNA-seq data; mainly built around the Seurat package
